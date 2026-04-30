@@ -148,95 +148,10 @@
 
 <div class="card">
 
-    <!-- ══ LOGO CACAU SHOW — SVG fiel ao original ══
-         Fundo vinho · monograma CS · texto script · 7 estrelas -->
     <div class="logo-wrap">
-        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"
-             role="img" aria-label="Cacau Show">
-            <defs>
-                <style>
-                    .cs-script {
-                        font-family: 'Great Vibes', 'Brush Script MT', 'Dancing Script', cursive;
-                        font-size: 52px;
-                        fill: white;
-                    }
-                </style>
-            </defs>
-
-            <!-- Fundo vinho arredondado -->
-            <rect width="300" height="300" rx="24" fill="#6b1a2a"/>
-
-            <!-- ═══ Monograma CS ═══ -->
-            <!-- C externo — arco aberto à direita, serif calligráfico -->
-            <path fill="white" d="
-                M 150,50
-                C 107,50 72,85 72,128
-                C 72,171 107,206 150,206
-                C 172,206 192,197 206,182
-                L 197,173
-                C 185,186 168,193 150,193
-                C 114,193 85,164 85,128
-                C 85,92 114,63 150,63
-                C 168,63 185,70 197,83
-                L 206,74
-                C 192,59 172,50 150,50 Z
-            "/>
-
-            <!-- Terminal superior do C (serifa) -->
-            <ellipse cx="206" cy="74" rx="6" ry="8"
-                     fill="white" transform="rotate(-30,206,74)"/>
-
-            <!-- S interior elegante -->
-            <path fill="white" d="
-                M 166,84
-                C 152,78 128,81 120,95
-                C 113,108 122,121 137,128
-                C 150,134 162,138 163,150
-                C 164,161 153,170 140,168
-                C 131,166 123,160 119,152
-                L 110,158
-                C 116,170 130,178 143,178
-                C 161,178 176,165 174,149
-                C 172,134 158,128 144,122
-                C 132,117 126,108 131,98
-                C 135,90 148,87 159,91
-                C 166,93 172,99 174,107
-                L 183,102
-                C 179,93 173,86 166,84 Z
-            "/>
-
-            <!-- Gota/bolha no topo do S (detalhe característico) -->
+        <img src="https://github.com/cacaushowilhagolden-ux/calculadora-remuneracao/blob/main/Captura%20de%20tela%202026-04-30%20193439.png?raw=true"
+             alt="Cacau Show" style="width:150px; height:auto; border-radius: 12px;" />
             <circle cx="181" cy="80" r="7" fill="white"/>
-
-            <!-- ═══ Texto CacauShow em script ═══ -->
-            <text x="150" y="248"
-                  text-anchor="middle"
-                  class="cs-script">CacauShow</text>
-
-            <!-- ═══ 7 estrelas ═══ -->
-            <!-- Função estrela: polígono de 5 pontas centrado em (cx,cy), raio externo r -->
-            <!-- estrela 1 -->
-            <polygon fill="white" points="
-                66,274 68.4,267.6 75,265.5 68.4,263.4 66,257 63.6,263.4 57,265.5 63.6,267.6"/>
-            <!-- estrela 2 -->
-            <polygon fill="white" points="
-                90,274 92.4,267.6 99,265.5 92.4,263.4 90,257 87.6,263.4 81,265.5 87.6,267.6"/>
-            <!-- estrela 3 -->
-            <polygon fill="white" points="
-                114,274 116.4,267.6 123,265.5 116.4,263.4 114,257 111.6,263.4 105,265.5 111.6,267.6"/>
-            <!-- estrela 4 (centro) -->
-            <polygon fill="white" points="
-                150,274 152.4,267.6 159,265.5 152.4,263.4 150,257 147.6,263.4 141,265.5 147.6,267.6"/>
-            <!-- estrela 5 -->
-            <polygon fill="white" points="
-                186,274 188.4,267.6 195,265.5 188.4,263.4 186,257 183.6,263.4 177,265.5 183.6,267.6"/>
-            <!-- estrela 6 -->
-            <polygon fill="white" points="
-                210,274 212.4,267.6 219,265.5 212.4,263.4 210,257 207.6,263.4 201,265.5 207.6,267.6"/>
-            <!-- estrela 7 -->
-            <polygon fill="white" points="
-                234,274 236.4,267.6 243,265.5 236.4,263.4 234,257 231.6,263.4 225,265.5 231.6,267.6"/>
-        </svg>
     </div>
 
     <h1>Calculadora de Remuneração Variável</h1>
@@ -324,8 +239,7 @@
 </div>
 
 <footer>
-    Desenvolvido por Iago Camuzzi<br>
-    Cacau Show Alecrim (ES) &nbsp;·&nbsp; Contato: (27) 99763-5942
+    Calculadora desenvolvida para ajudar a todos os franqueados.
 </footer>
 
 <script>
@@ -480,7 +394,7 @@
         doc.setFontSize(7.5);
         doc.setTextColor(160, 128, 96);
         doc.text(
-            `Gerado em ${new Date().toLocaleDateString('pt-BR')} · Iago Camuzzi · (27) 99763-5942`,
+            `Gerado em ${new Date().toLocaleDateString('pt-BR')} · Calculadora para franqueados Cacau Show`,
             105, y + 12, { align: 'center' }
         );
 

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Remuneração Variável — Cacau Show</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f0eb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 420px;
+            padding: 28px 28px 24px;
+        }
+
+        /* ── Logo ── */
+        .logo-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .logo-wrap svg {
+            width: 150px;
+            height: auto;
+        }
+
+        h1 {
+            font-size: 1.1em;
+            color: #3b1e08;
+            text-align: center;
+            margin-bottom: 22px;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            font-size: 0.82em;
+            color: #6b5040;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .field { margin-bottom: 14px; }
+
+        .input-prefix { position: relative; }
+        .input-prefix .prefix {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85em;
+            color: #9b7b62;
+            pointer-events: none;
+            font-weight: 500;
+        }
+        .input-prefix input { padding-left: 34px !important; }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e0d0c4;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: #3b1e08;
+            background: #fdf8f5;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        input:focus, select:focus { border-color: #6b1a2a; }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .row2 .field { margin-bottom: 0; }
+
+        .limiar-label { font-size: 0.82em; color: #6b5040; font-weight: 500; margin-bottom: 7px; }
+        .limiar-inner { display: flex; align-items: center; gap: 10px; }
+        .limiar-inner input[type=range] {
+            flex: 1; padding: 0; border: none;
+            background: transparent; accent-color: #6b1a2a; cursor: pointer;
+        }
+        .limiar-val { font-size: 0.95em; font-weight: 700; color: #6b1a2a; min-width: 26px; text-align: right; }
+        .limiar-hint { font-size: 0.75em; color: #9b7b62; margin-top: 5px; }
+
+        .btn-calcular {
+            width: 100%; padding: 12px;
+            background-color: #6b1a2a; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 0.95em; font-weight: 600; cursor: pointer;
+            margin-top: 6px; letter-spacing: 0.03em;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-calcular:hover { background-color: #551525; }
+        .btn-calcular:active { transform: scale(0.98); }
+
+        .btn-pdf {
+            display: none; width: 100%; padding: 10px;
+            background-color: #27ae60; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 0.9em; font-weight: 600; cursor: pointer; margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .btn-pdf:hover { background-color: #219150; }
+
+        .divider { height: 1px; background: #f0e4da; margin: 20px 0; }
+
+        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .result-card { background: #fdf8f5; border: 1px solid #f0e4da; border-radius: 9px; padding: 11px 13px; }
+        .result-card .rc-label { font-size: 0.73em; color: #9b7b62; margin-bottom: 4px; }
+        .result-card .rc-value { font-size: 1.05em; font-weight: 600; color: #3b1e08; }
+        .rc-badge { display: inline-block; font-size: 0.68em; padding: 2px 8px; border-radius: 99px; margin-top: 5px; font-weight: 500; }
+        .badge-ok   { background: #d5f5e3; color: #1e8449; }
+        .badge-warn { background: #fef9e7; color: #b7770d; }
+        .badge-err  { background: #fdecea; color: #922b21; }
+
+        .total-card {
+            background: #6b1a2a; border-radius: 9px; padding: 14px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .total-card .tc-label { font-size: 0.82em; color: #f5c6c6; }
+        .total-card .tc-value { font-size: 1.3em; font-weight: 700; color: #fff; }
+
+        .breakdown { font-size: 0.77em; color: #9b7b62; line-height: 1.9; margin-top: 14px; }
+        .breakdown strong { color: #3b1e08; font-weight: 600; }
+
+        footer { text-align: center; margin-top: 20px; font-size: 0.75em; color: #a08060; line-height: 1.7; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <div class="logo-wrap">
+        <img src="https://github.com/cacaushowilhagolden-ux/calculadora-remuneracao/blob/main/Captura%20de%20tela%202026-04-30%20193439.png?raw=true"
+             alt="Cacau Show" style="width:150px; height:auto; border-radius: 12px;" />
+            <circle cx="181" cy="80" r="7" fill="white"/>
+    </div>
+
+    <h1>Calculadora de Remuneração Variável</h1>
+
+    <div class="row2">
+        <div class="field">
+            <label for="meta">Meta de Vendas (R$)</label>
+            <div class="input-prefix">
+                <span class="prefix">R$</span>
+                <input type="text" id="meta" placeholder="0,00" inputmode="numeric">
+            </div>
+        </div>
+        <div class="field">
+            <label for="vendas">Total de Vendas (R$)</label>
+            <div class="input-prefix">
+                <span class="prefix">R$</span>
+                <input type="text" id="vendas" placeholder="0,00" inputmode="numeric">
+            </div>
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="nota">Nota do Consumidor (0–100)</label>
+        <input type="number" id="nota" placeholder="Ex: 85" inputmode="numeric" min="0" max="100">
+    </div>
+
+    <div class="field">
+        <div class="limiar-label">Nota mínima para receber o valor integral</div>
+        <div class="limiar-inner">
+            <input type="range" id="limiar" min="50" max="95" step="5" value="70" oninput="atualizarLimiar()">
+            <span class="limiar-val" id="limiar-val">70</span>
+        </div>
+        <div class="limiar-hint" id="limiar-hint">Nota &lt; 70 → R$ 0 &nbsp;|&nbsp; Nota ≥ 70 → valor integral</div>
+    </div>
+
+    <div class="row2">
+        <div class="field">
+            <label for="modelo">Modelo de Remuneração</label>
+            <select id="modelo">
+                <option value="1">Modelo 1 — R$ 140</option>
+                <option value="2">Modelo 2 — R$ 200</option>
+                <option value="3">Modelo 3 — R$ 300</option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="tipo">Tipo de Remuneração</label>
+            <select id="tipo">
+                <option value="padrao">Padrão</option>
+                <option value="campanha">Campanha</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="btn-calcular" onclick="calcular()">Calcular</button>
+    <button class="btn-pdf" id="exportarPDF" onclick="gerarPDF()">Exportar PDF</button>
+
+    <div id="results" style="display:none;">
+        <div class="divider"></div>
+        <div class="cards-grid">
+            <div class="result-card">
+                <div class="rc-label">Atingimento da meta</div>
+                <div class="rc-value" id="r-pct">—</div>
+                <div id="r-meta-badge"></div>
+            </div>
+            <div class="result-card">
+                <div class="rc-label">Nota do consumidor</div>
+                <div class="rc-value" id="r-nota">—</div>
+                <div id="r-nota-badge"></div>
+            </div>
+            <div class="result-card">
+                <div class="rc-label">Valor da meta</div>
+                <div class="rc-value" id="r-vmeta">—</div>
+            </div>
+            <div class="result-card">
+                <div class="rc-label">Valor da nota</div>
+                <div class="rc-value" id="r-vnota">—</div>
+            </div>
+        </div>
+        <div class="total-card">
+            <div class="tc-label">Remuneração variável total</div>
+            <div class="tc-value" id="r-total">—</div>
+        </div>
+        <div class="breakdown" id="breakdown"></div>
+    </div>
+</div>
+
+<footer>
+    Calculadora desenvolvida para ajudar a todos os franqueados.
+</footer>
+
+<script>
+    function parseBR(str) {
+        return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+    }
+    function formatBR(raw) {
+        const digits = raw.replace(/\D/g, '');
+        if (!digits) return '';
+        const num = parseInt(digits, 10) / 100;
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function bindCurrency(id) {
+        const el = document.getElementById(id);
+        el.addEventListener('input', function () {
+            const pos = this.selectionStart;
+            const prev = this.value.length;
+            this.value = formatBR(this.value);
+            const diff = this.value.length - prev;
+            this.setSelectionRange(pos + diff, pos + diff);
+        });
+    }
+    bindCurrency('meta');
+    bindCurrency('vendas');
+
+    function atualizarLimiar() {
+        const v = document.getElementById('limiar').value;
+        document.getElementById('limiar-val').textContent = v;
+        document.getElementById('limiar-hint').innerHTML =
+            `Nota &lt; ${v} → R$ 0 &nbsp;|&nbsp; Nota ≥ ${v} → valor integral`;
+    }
+
+    function fmt(v) {
+        return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    let _pct = 0, _valorMeta = 0, _valorNota = 0, _total = 0;
+
+    function calcular() {
+        const meta   = parseBR(document.getElementById('meta').value);
+        const vendas = parseBR(document.getElementById('vendas').value);
+        const nota   = parseFloat(document.getElementById('nota').value);
+        const limiar = parseFloat(document.getElementById('limiar').value);
+        const modelo = document.getElementById('modelo').value;
+        const tipo   = document.getElementById('tipo').value;
+
+        if (!meta || !vendas || isNaN(nota)) {
+            alert('Preencha todos os campos corretamente.');
+            return;
+        }
+
+        const tabela = {
+            '1': { padrao: [98, 42],  campanha: [196, 84]  },
+            '2': { padrao: [140, 60], campanha: [280, 120] },
+            '3': { padrao: [210, 90], campanha: [420, 180] }
+        };
+        const [valorBase, valorNotaMax] = tabela[modelo][tipo];
+        const pct = (vendas / meta) * 100;
+
+        let valorMeta, regraDesc;
+        if (pct < 95) {
+            valorMeta = 0;
+            regraDesc = 'Abaixo de 95% — sem pagamento de meta';
+        } else if (pct < 100) {
+            valorMeta = valorBase / 2;
+            regraDesc = 'Entre 95% e 99,99% — 50% do valor base';
+        } else if (pct <= 104.99) {
+            valorMeta = valorBase;
+            regraDesc = 'Entre 100% e 104,99% — 100% do valor base';
+        } else if (pct <= 120) {
+            valorMeta = (pct / 100) * valorBase;
+            regraDesc = 'Entre 105% e 120% — proporcional ao atingimento';
+        } else {
+            valorMeta = 1.2 * valorBase;
+            regraDesc = 'Acima de 120% — cap em 120% do valor base';
+        }
+
+        const valorNota = nota >= limiar ? valorNotaMax : 0;
+        const notaDesc  = nota >= limiar
+            ? `Nota ≥ ${limiar} — valor de nota integral`
+            : `Nota < ${limiar} — sem pagamento de nota`;
+
+        const total = valorMeta + valorNota;
+        _pct = pct; _valorMeta = valorMeta; _valorNota = valorNota; _total = total;
+
+        const [metaCls, metaTxt] =
+            pct < 95   ? ['badge-err',  'Abaixo do mínimo'] :
+            pct < 100  ? ['badge-warn', 'Parcial']           :
+            pct <= 120 ? ['badge-ok',   'Meta atingida']     :
+                         ['badge-ok',   'Superado'];
+        const [notaCls, notaTxt] = nota >= limiar
+            ? ['badge-ok',  'Aprovada']
+            : ['badge-err', 'Abaixo do mínimo'];
+
+        document.getElementById('r-pct').textContent   = pct.toFixed(2).replace('.', ',') + '%';
+        document.getElementById('r-nota').textContent  = nota.toFixed(0) + ' pts';
+        document.getElementById('r-vmeta').textContent = fmt(valorMeta);
+        document.getElementById('r-vnota').textContent = fmt(valorNota);
+        document.getElementById('r-total').textContent = fmt(total);
+
+        document.getElementById('r-meta-badge').innerHTML =
+            `<span class="rc-badge ${metaCls}">${metaTxt}</span>`;
+        document.getElementById('r-nota-badge').innerHTML =
+            `<span class="rc-badge ${notaCls}">${notaTxt}</span>`;
+
+        document.getElementById('breakdown').innerHTML =
+            `Meta: <strong>${regraDesc}</strong><br>` +
+            `Nota: <strong>${notaDesc}</strong><br>` +
+            `Valor base (meta): <strong>${fmt(valorBase)}</strong> &nbsp;·&nbsp; Valor da nota: <strong>${fmt(valorNotaMax)}</strong>`;
+
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('exportarPDF').style.display = 'block';
+    }
+
+    function gerarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFillColor(107, 26, 42);
+        doc.roundedRect(15, 10, 180, 22, 4, 4, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.setTextColor(255, 255, 255);
+        doc.text("Relatório de Remuneração Variável", 105, 24, { align: 'center' });
+
+        doc.setFontSize(9);
+        doc.setTextColor(107, 26, 42);
+        doc.setFont("helvetica", "normal");
+        doc.text("Cacau Show Alecrim (ES)", 105, 40, { align: 'center' });
+
+        const rows = [
+            ['Atingimento da Meta', `${_pct.toFixed(2).replace('.', ',')}%`],
+            ['Valor da Meta',        fmt(_valorMeta)],
+            ['Valor da Nota',        fmt(_valorNota)],
+            ['Remuneração Total',    fmt(_total)]
+        ];
+        const bgColors = [[232,205,184],[253,248,245],[253,248,245],[107,26,42]];
+        const txColors = [[59,26,8],[59,26,8],[59,26,8],[255,255,255]];
+
+        let y = 50;
+        rows.forEach(([label, value], i) => {
+            doc.setFillColor(...bgColors[i]);
+            doc.roundedRect(15, y, 180, 14, 3, 3, 'F');
+            doc.setTextColor(...txColors[i]);
+            doc.setFont("helvetica", i === 3 ? "bold" : "normal");
+            doc.setFontSize(10);
+            doc.text(label, 22, y + 9.5);
+            doc.text(value, 185, y + 9.5, { align: 'right' });
+            y += 18;
+        });
+
+        doc.setFontSize(7.5);
+        doc.setTextColor(160, 128, 96);
+        doc.text(
+            `Gerado em ${new Date().toLocaleDateString('pt-BR')} · Calculadora para franqueados Cacau Show`,
+            105, y + 12, { align: 'center' }
+        );
+
+        doc.save("relatorio-remuneracao-cacaushow.pdf");
+    }
+</script>
+</body>
+</html>
